@@ -1,0 +1,1 @@
+python disasterSmsList.py --date::today
