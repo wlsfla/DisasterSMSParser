@@ -1,7 +1,6 @@
-from distutils.log import error
 import json
 import sys
-from traceback import print_tb
+import os
 
 import requests
 from pandas import json_normalize
@@ -113,7 +112,11 @@ def printOutLog(str):
 def main():
     payload = '{"searchInfo":{"pageIndex":"1","pageUnit":"10","pageSize":10,"firstIndex":"1","lastIndex":"1","recordCountPerPage":"10","searchBgnDe":"2022-01-28","searchEndDe":"2022-01-29","searchGb":"1","searchWrd":"","rcv_Area_Id":"","dstr_se_Id":"","c_ocrc_type":"","sbLawArea1":"","sbLawArea2":""}}'
 
-    # 1) payload, header setting, and post request
+    # 1) payload, and post request
+    payjs = json.loads(payload)
+    payjs['searchInfo']['searchBgnDe'] = Appinfo.bgnDate
+    payjs['searchInfo']['searchEndDe'] = Appinfo.bgnDate
+    payload = json.dumps(payjs)
     re = doReq(payload)['rtnResult']
 
     # 2) checkout request success.
@@ -128,12 +131,14 @@ def main():
     payload = json.dumps(payjs)
 
     # 4) post request again. and save result(excel format)
-    fileName = f'disasterSmsList_{Appinfo.bgnDate}_{Appinfo.endDate}.xlsx'
-    json_normalize(doReq(payload)['disasterSmsList']).to_excel(fileName, sheet_name='disasterSmsList', index=False)
-    printOutLog(f'[+] result Saved. path : {fileName}')
+    filePath = f'disasterSmsList_{Appinfo.bgnDate}_{Appinfo.endDate}.xlsx'
+    filePath = os.path.join(os.path.dirname(os.path.realpath(__file__)),filePath)
+    
+    json_normalize(doReq(payload)['disasterSmsList']).to_excel(filePath, sheet_name='disasterSmsList', index=False)
+    printOutLog(f'[+] result Saved. path : {filePath}')
 
 if __name__ == '__main__':
     chkArgValue()
     main()
 
-    print('\n\n>>> End Application <<<')
+    print('\n>>> End Application <<<')
